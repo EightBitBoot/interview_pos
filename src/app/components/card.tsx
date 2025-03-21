@@ -5,58 +5,33 @@ import type { ReactNode } from 'react';
 import clsx from 'clsx';
 
 export interface CardProps {
-  padding?: number,
-  textAlign?: string,
-  gap?: number,
+  extraClasses?: string,
   onClick?: () => void,
   children: Readonly<ReactNode>,
 };
 
-export function Card({ padding = 50, gap = 3, textAlign, onClick, children }: CardProps) {
-  if (onClick) {
-    return (
-      <button
-        className={clsx(
-          `flex
-           flex-col
-           border-2
-           border-black
-           box-border
-           bg-white
-           rounded-xl
-           drop-shadow-lg
-           p-${padding}
-           gap-${gap}`,
+export function Card({ extraClasses, onClick, children }: CardProps) {
+  return (
+    <button
+      className={clsx(
+        `flex
+         flex-col
+         border-2
+         border-black
+         box-border
+         bg-white
+         rounded-xl
+         drop-shadow-lg
+         p-3
+         gap-3
+         text-left`,
 
-          (textAlign ? "text-" + textAlign : "text-left")
-        )}
+         (extraClasses?? false),
+      )}
 
-        onClick={() => onClick()}
-      >
-        {children}
-      </button>
-    )
-  }
-  else {
-    return (
-      <button
-        className={clsx(
-          `flex
-           flex-col
-           border-2
-           border-black
-           box-border
-           bg-white
-           rounded-xl
-           drop-shadow-lg
-           p-${padding}
-           gap-${gap}`,
-
-          (textAlign ? "text-" + textAlign : "text-left")
-        )}
-      >
-        {children}
-      </button>
-    )
-  }
+      onClick={onClick ?? undefined}
+    >
+      {children}
+    </button>
+  )
 }

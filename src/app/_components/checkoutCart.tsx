@@ -10,7 +10,7 @@ import { formatCurrency } from '~/utils/uiUtils';
 
 function CheckoutCard({ confItem }: { confItem: ConfiguredItem }) {
   return (
-    <Card padding={3} >
+    <Card>
       <div>
         <span className="text-2xl font-semibold">{confItem.item.name}</span>: <span className="text-l">${formatCurrency(confItem.item.basePrice)}</span>
       </div>

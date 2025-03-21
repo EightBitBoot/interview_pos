@@ -34,9 +34,7 @@ function ItemCard({ item, onItemClick }: { item: ItemWithAddons, onItemClick: It
 
   return (
     <Card
-      gap={3}
-      padding={10}
-      textAlign="center"
+      extraClasses="p-10 text-center"
       onClick={() => onItemClick(configuredItem)}
     >
       <div className="font-semibold text-2xl">{item.name}</div>
