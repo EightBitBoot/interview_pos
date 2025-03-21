@@ -5,8 +5,10 @@ import { seed } from 'drizzle-seed'
 import { db } from "~/server/db";
 import * as schemas from '~/server/db/schemas/posSchema';
 
+const randomSeed = 1234;
+
 export async function GET() {
-  await seed(db, { restaurants: schemas.restaurants, menus: schemas.menus, items: schemas.items }).refine((f) => ({
+  await seed(db, { restaurants: schemas.restaurants, menus: schemas.menus, items: schemas.items }, { seed: randomSeed }).refine((f) => ({
     restaurants: {
       count: 5,
 
@@ -23,7 +25,8 @@ export async function GET() {
             "Outback Steakhouse",
             "Jine's",
             "The Hard Rock Caffee"
-          ]
+          ],
+          isUnique: true,
         })
       },
       with: {
@@ -45,7 +48,7 @@ export async function GET() {
             "Christmas",
             "Kwanzaa",
             "Catering",
-          ]
+          ],
         })
       },
       with: {
@@ -72,13 +75,12 @@ export async function GET() {
             "Grilled Asparagus",
             "Scrambled Eggs",
             "Green Eggs and Ham",
-          ]
+          ],
         }),
         description: f.loremIpsum(),
         basePrice: f.int({
           minValue: 799,
           maxValue: 100000,
-          isUnique: false
         })
       }
     }
