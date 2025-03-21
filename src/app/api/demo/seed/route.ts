@@ -8,7 +8,16 @@ import * as schemas from '~/server/db/schemas/posSchema';
 const randomSeed = 1234;
 
 export async function GET() {
-  await seed(db, { restaurants: schemas.restaurants, menus: schemas.menus, items: schemas.items }, { seed: randomSeed }).refine((f) => ({
+  await seed(db,
+   {
+    restaurants: schemas.restaurants,
+    menus: schemas.menus,
+    items: schemas.items,
+    addons: schemas.addons
+  },
+  {
+    seed: randomSeed
+  }).refine((f) => ({
     restaurants: {
       count: 5,
 
@@ -33,8 +42,8 @@ export async function GET() {
         menus: [
           { weight: 0.8, count: [1, 2, 3] },
           { weight: 0.2, count: [4, 5, 6] },
-        ]
-      }
+        ],
+      },
     },
 
     menus: {
@@ -55,8 +64,8 @@ export async function GET() {
         items: [
           { weight: 0.8, count: [6, 7, 8] },
           { weight: 0.2, count: [9, 10] },
-        ]
-      }
+        ],
+      },
     },
 
     items: {
@@ -82,8 +91,35 @@ export async function GET() {
           minValue: 799,
           maxValue: 100000,
         })
-      }
-    }
+      },
+      with: {
+        addons: [
+          { weight: 0.5, count: [1] },
+          { weight: 0.4, count: [2] },
+          { weight: 0.1, count: [3, 4] },
+        ],
+      },
+    },
+
+    addons: {
+      columns: {
+        id: f.intPrimaryKey(),
+        name: f.valuesFromArray({
+          values: [
+            "Ketchup",
+            "Mayonaise",
+            "Tomato",
+            "Onion",
+            "Olives",
+            "Black Olives"
+          ],
+        }),
+        price: f.int({
+          minValue: 89,
+          maxValue: 300
+        }),
+      },
+    },
   }))
 
   return NextResponse.json({ status: "Success" }, { status: 200 })

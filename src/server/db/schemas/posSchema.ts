@@ -49,7 +49,7 @@ export const employees = createTable(
     // TODO(Adin): Integrate with the authentication system
     restaurantId: integer("restaurant_id").references(() => restaurants.id).notNull(),
     // TODO(Adin): Remove me?
-    pin: integer("pin").notNull(), 
+    pin: integer("pin").notNull(),
   }
 )
 export type Employee = InferSelectModel<typeof employees>;
@@ -85,13 +85,14 @@ export const menus = createTable(
   "menu",
   {
     ...idColumn,
-    
+
     restaurantId: integer("restaurant_id").references(() => restaurants.id).notNull(),
     name: varchar("name", { length: 255 }).notNull(),
   }
 );
 export type Menu = InferSelectModel<typeof menus>;
 export type MenuWithItems = { items: Item[] } & Menu
+export type MenuWithItemsAndAddons = { items: ItemWithAddons[] } & Menu
 
 export const menusRelations = relations(menus, ({ one, many }) => ({
   restaurants: one(restaurants, {
@@ -114,6 +115,9 @@ export const items = createTable(
   }
 );
 export type Item = InferSelectModel<typeof items>;
+export type ItemWithAddons = {
+  addons: Addon[],
+} & Item;
 
 export const itemsRelations = relations(items, ({ one, many }) => ({
   menus: one(menus, {
@@ -121,11 +125,11 @@ export const itemsRelations = relations(items, ({ one, many }) => ({
     references: [menus.id],
   }),
 
-  // TODO(Adin): Specializations
+  addons: many(addons),
 }));
 
-export const specializations = createTable(
-  "specialization",
+export const addons = createTable(
+  "addon",
   {
     ...idColumn,
 
@@ -134,7 +138,14 @@ export const specializations = createTable(
     price: integer("price").notNull().default(0),
   }
 )
-export type Specialization = InferSelectModel<typeof specializations>;
+export type Addon = InferSelectModel<typeof addons>;
+
+export const addonRelations = relations(addons, ({ one }) => ({
+  items: one(items, {
+    fields: [addons.itemId],
+    references: [items.id],
+  })
+}));
 
 export const transactions = createTable(
   "transaction",
@@ -145,7 +156,7 @@ export const transactions = createTable(
     employeeId: integer("employee_id").references(() => employees.id).notNull(),
     timestamp: timestamp("timestamp").notNull(),
     tipAmount: integer("tip_amount").notNull().default(0),
-});
+  });
 export type Transaction = InferSelectModel<typeof transactions>;
 
 export const transactionItems = createTable(
@@ -158,13 +169,12 @@ export const transactionItems = createTable(
   }
 )
 
-// Cache invalidation and transactionItemSpecializations
-export const transactionItemSpecializations = createTable(
-  "transaction_item_specialization",
+export const transactionAddons = createTable(
+  "transaction_addon",
   {
     ...idColumn,
 
     transactionItem: integer("transaction_item").references(() => transactionItems.id).notNull(),
-    specializationId: integer("specialization_id").references(() => specializations.id).notNull()
+    addonId: integer("addon_id").references(() => addons.id).notNull()
   }
 )

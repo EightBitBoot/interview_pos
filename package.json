@@ -26,6 +26,7 @@
     "@trpc/client": "11.0.0-rc.840",
     "@trpc/react-query": "11.0.0-rc.840",
     "@trpc/server": "11.0.0-rc.840",
+    "clsx": "^2.1.1",
     "drizzle-orm": "^0.36.4",
     "geist": "^1.3.1",
     "next": "^15.2.3",
