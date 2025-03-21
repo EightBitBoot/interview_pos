@@ -15,6 +15,9 @@ import { type AdapterAccount } from "next-auth/adapters";
  * database instance for multiple projects.
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
+ *
+ * NOTE(Adin): Every attempt at deduplicating this failed with
+ * 'ReferenceError: Cannot access 'clockedInIntervals' before initialization'
  */
 export const createTable = pgTableCreator((name) => `interview_pos_${name}`);
 
@@ -127,3 +130,4 @@ export const verificationTokens = createTable(
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   })
 );
+
