@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, type InferSelectModel } from "drizzle-orm";
 import {
   integer,
   pgTableCreator,
@@ -33,9 +33,11 @@ export const restaurants = createTable(
     currentMenuId: integer("current_menu_id").references((): AnyPgColumn => menus.id),
   }
 );
+export type Restaurant = InferSelectModel<typeof restaurants>;
 
 export const restaurantRelations = relations(restaurants, ({ many }) => ({
   employees: many(employees),
+  menus: many(menus)
 }));
 
 export const employees = createTable(
@@ -50,6 +52,7 @@ export const employees = createTable(
     pin: integer("pin").notNull(), 
   }
 )
+export type Employee = InferSelectModel<typeof employees>;
 
 export const employeeRelations = relations(employees, ({ one, many }) => ({
   restaurant: one(restaurants, {
@@ -69,6 +72,7 @@ export const clockedInIntervals = createTable(
     timeOut: timestamp("time_out"), // If timeOut is null, the employee is still clocked in
   }
 )
+export type ClockedInInterval = InferSelectModel<typeof clockedInIntervals>;
 
 export const clockedInIntervalsRelations = relations(clockedInIntervals, ({ one }) => ({
   employee: one(employees, {
@@ -86,6 +90,17 @@ export const menus = createTable(
     name: varchar("name", { length: 255 }).notNull(),
   }
 );
+export type Menu = InferSelectModel<typeof menus>;
+export type MenuWithItems = { items: Item[] } & Menu
+
+export const menusRelations = relations(menus, ({ one, many }) => ({
+  restaurants: one(restaurants, {
+    fields: [menus.restaurantId],
+    references: [restaurants.id],
+  }),
+
+  items: many(items)
+}));
 
 export const items = createTable(
   "item",
@@ -98,6 +113,16 @@ export const items = createTable(
     basePrice: integer("base_price").notNull().default(0),
   }
 );
+export type Item = InferSelectModel<typeof items>;
+
+export const itemsRelations = relations(items, ({ one, many }) => ({
+  menus: one(menus, {
+    fields: [items.menuId],
+    references: [menus.id],
+  }),
+
+  // TODO(Adin): Specializations
+}));
 
 export const specializations = createTable(
   "specialization",
@@ -109,6 +134,7 @@ export const specializations = createTable(
     price: integer("price").notNull().default(0),
   }
 )
+export type Specialization = InferSelectModel<typeof specializations>;
 
 export const transactions = createTable(
   "transaction",
@@ -120,6 +146,7 @@ export const transactions = createTable(
     timestamp: timestamp("timestamp").notNull(),
     tipAmount: integer("tip_amount").notNull().default(0),
 });
+export type Transaction = InferSelectModel<typeof transactions>;
 
 export const transactionItems = createTable(
   "transaction_item",
