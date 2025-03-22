@@ -2,7 +2,7 @@
 
 import { ItemWithAddons } from '~/server/db/schemas/posSchema';
 
-import { Card } from '~/app/components/card';
+import Card from '~/app/components/card';
 
 import type { ConfiguredItem } from "./confItem";
 import { formatCurrency } from "~/utils/uiUtils";

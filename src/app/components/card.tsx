@@ -10,7 +10,7 @@ export interface CardProps {
   children: Readonly<ReactNode>,
 };
 
-export function Card({ extraClasses, onClick, children }: CardProps) {
+export default function Card({ extraClasses, onClick, children }: CardProps) {
   return (
     <button
       className={clsx(

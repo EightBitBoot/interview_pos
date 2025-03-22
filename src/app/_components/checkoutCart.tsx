@@ -1,6 +1,6 @@
 // NOTE(Adin): Implicitly 'use client' under posDisplay.tsx
 
-import { Card } from '~/app/components/card';
+import Card from '~/app/components/card';
 import { getConfItemPrice } from './confItem';
 import type { ConfiguredItem } from './confItem';
 

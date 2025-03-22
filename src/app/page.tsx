@@ -1,46 +1,46 @@
-import { auth } from "~/server/auth";
-import { api, HydrateClient } from "~/trpc/server";
+'use client';
 
-import { db } from "~/server/db";
+import { useState } from 'react';
 
-import PosDisplay from "~/app/_components/posDisplay";
+import { api } from '~/trpc/react';
 
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-  const session = await auth();
+import Card from './components/card';
+import CenteredDiv from './components/centeredDiv'
 
-  // Avoid naming conflict with restaurants schema
-  const eateries = await db.query.restaurants.findMany({
-    with: {
-      menus: {
-        with: {
-          items: {
-            with: {
-              addons: true,
-            },
-          },
-        },
-      },
-    },
-  })
+import PosDisplay from './_components/posDisplay';
 
-  if (session?.user) {
-    void api.post.getLatest.prefetch();
-  }
+function LoadingDisplay() {
+  return (
+    <CenteredDiv>
+      <Card>Loading</Card>
+    </CenteredDiv>
+  );
+}
+
+export default function Home() {
+  const { isLoading, data } = api.admin.getRestaurants.useQuery()
+  const restaurants = data ?? [];
+
+  const [currentRestaurant, setCurrentRestaurant] = useState(0);
 
   return (
-    <HydrateClient>
-      <main className="flex h-screen flex-col items-center bg-gradient-to-b from-[#2e026d] to-[#15162c] overflow-y-hidden">
-        <p>Current Restaurant</p>
-        <select name="currentRestaurant">
-          {
-            eateries.map((eatery) => {
-              return <option key={eatery.id} value={eatery.name.toLowerCase()}>{eatery.name}</option>
-            })
-          }
-        </select>
-        <PosDisplay currentMenu={eateries[0]!.menus[0]!}/>
-      </main>
-    </HydrateClient>
+    <main className="flex h-screen flex-col items-center bg-gradient-to-b from-[#2e026d] to-[#15162c] overflow-y-hidden">
+      {
+        isLoading ? <LoadingDisplay /> :
+
+          <>
+            <label className="text-white">Current Restaurant</label>
+            <select name="currentRestaurant" onChange={(e) => setCurrentRestaurant(e.target.selectedIndex)}>
+              {
+                restaurants.map((restaurant) => {
+                  return <option key={restaurant.id} value={restaurant.name.toLowerCase()}>{restaurant.name}</option>
+                })
+              }
+
+            </select>
+            <PosDisplay currentMenu={restaurants[currentRestaurant]!.menus[0]!} />
+          </>
+      }
+    </main>
   );
 }
