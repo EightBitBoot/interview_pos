@@ -7,7 +7,11 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
+import { z } from "zod";
+
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
+
+import { createUpdateSchema } from 'drizzle-zod';
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -118,6 +122,7 @@ export type Item = InferSelectModel<typeof items>;
 export type ItemWithAddons = {
   addons: Addon[],
 } & Item;
+export const itemUpdateZodSchema = createUpdateSchema(items).extend({id: z.number()});
 
 export const itemsRelations = relations(items, ({ one, many }) => ({
   menus: one(menus, {
