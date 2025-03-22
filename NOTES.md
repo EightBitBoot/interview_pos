@@ -1,9 +1,9 @@
 NOTE(Adin): =={contents}== is an optional enhancement
 
 # TODO (Not in Chronological Order)
-- [ ] Database schemas
-- [ ] Mock data
-- [ ] Checkout screen (from interview)
+- [x] Database schemas
+- [x] Mock data
+- [x] Checkout screen (from interview)
     - [ ] Checking out
         - [ ] Select specializations
     - [ ] ==Search==
