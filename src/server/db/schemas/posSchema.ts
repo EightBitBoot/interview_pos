@@ -38,6 +38,7 @@ export const restaurants = createTable(
   }
 );
 export type Restaurant = InferSelectModel<typeof restaurants>;
+export type RestaurantWithEverything = { menus: MenuWithItemsAndAddons[] } & Restaurant;
 
 export const restaurantRelations = relations(restaurants, ({ many }) => ({
   employees: many(employees),
@@ -122,7 +123,7 @@ export type Item = InferSelectModel<typeof items>;
 export type ItemWithAddons = {
   addons: Addon[],
 } & Item;
-export const itemUpdateZodSchema = createUpdateSchema(items).extend({id: z.number()});
+export const itemUpdateZodSchema = createUpdateSchema(items).extend({ id: z.number() });
 
 export const itemsRelations = relations(items, ({ one, many }) => ({
   menus: one(menus, {
