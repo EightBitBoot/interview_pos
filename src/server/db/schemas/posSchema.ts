@@ -159,7 +159,7 @@ export const transactions = createTable(
     ...idColumn,
 
     restaurantId: integer("restaurant_id").references(() => restaurants.id).notNull(),
-    employeeId: integer("employee_id").references(() => employees.id).notNull(),
+    // employeeId: integer("employee_id").references(() => employees.id).notNull(),
     timestamp: timestamp("timestamp").notNull(),
     tipAmount: integer("tip_amount").notNull().default(0),
   });
@@ -180,7 +180,8 @@ export const transactionAddons = createTable(
   {
     ...idColumn,
 
-    transactionItem: integer("transaction_item").references(() => transactionItems.id).notNull(),
-    addonId: integer("addon_id").references(() => addons.id).notNull()
+    transactionItemId: integer("transaction_item_id").references(() => transactionItems.id).notNull(),
+    addonId: integer("addon_id").references(() => addons.id).notNull(),
+    quantity: integer("quantity").notNull().default(1)
   }
 )

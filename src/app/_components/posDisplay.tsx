@@ -8,7 +8,7 @@ import CheckoutCart from './checkoutCart';
 import type { MenuWithItemsAndAddons, ItemWithAddons } from "~/server/db/schemas/posSchema";
 import type { ConfiguredItem } from './confItem';
 
-export default function PosDisplay({ currentMenu }: { currentMenu: MenuWithItemsAndAddons }) {
+export default function PosDisplay({ restaurantId, currentMenu }: { restaurantId: number, currentMenu: MenuWithItemsAndAddons }) {
   function placeholderItem(id: number): ItemWithAddons {
     return {
       id: id,
@@ -28,6 +28,10 @@ export default function PosDisplay({ currentMenu }: { currentMenu: MenuWithItems
     setCheckoutItems(newCheckoutItems);
   }
 
+  function onCheckout() {
+    setCheckoutItems([]);
+  }
+
   return (
     <div className="grid flex-grow w-screen grid-cols-[3fr,1fr]">
       <div className="p-4px h-screen overflow-y-scroll">
@@ -35,7 +39,7 @@ export default function PosDisplay({ currentMenu }: { currentMenu: MenuWithItems
         <ItemsList items={[...currentMenu.items, placeholderItem(1000), placeholderItem(1001), placeholderItem(1002)]} handleItemClick={handleItemClick} />
       </div>
       <div className="bg-blue-600 h-screen overflow-y-auto">
-        <CheckoutCart configuredItems={checkoutItems} />
+        <CheckoutCart configuredItems={checkoutItems} restaurantId={restaurantId} />
       </div>
     </div>
   );

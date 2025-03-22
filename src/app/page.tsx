@@ -23,6 +23,10 @@ export default function Home() {
 
   const [currentRestaurant, setCurrentRestaurant] = useState(0);
 
+  function onCheckout() {
+
+  }
+
   return (
     <main className="flex h-screen flex-col items-center bg-gradient-to-b from-[#2e026d] to-[#15162c] overflow-y-hidden">
       {
@@ -38,7 +42,7 @@ export default function Home() {
               }
 
             </select>
-            <PosDisplay currentMenu={restaurants[currentRestaurant]!.menus[0]!} />
+            <PosDisplay currentMenu={restaurants[currentRestaurant]!.menus[0]!} restaurantId={restaurants[currentRestaurant]!.id} />
           </>
       }
     </main>

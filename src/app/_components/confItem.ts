@@ -1,5 +1,7 @@
 import type { Addon, ItemWithAddons } from "~/server/db/schemas/posSchema";
 
+import { z } from "zod";
+
 // TODO(Adin): Convert these to transaction items
 export type CheckoutAddon = {
   quantity: number,

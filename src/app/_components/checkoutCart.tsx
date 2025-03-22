@@ -1,5 +1,7 @@
 // NOTE(Adin): Implicitly 'use client' under posDisplay.tsx
 
+import { api } from '~/trpc/react';
+
 import Card from '~/app/components/card';
 import { getConfItemPrice } from './confItem';
 import type { ConfiguredItem } from './confItem';
@@ -47,19 +49,31 @@ function CheckoutButton({ handleCheckout }: { handleCheckout: CheckoutHandler })
   );
 }
 
-function checkOut(total: number) {
-  // TODO(Adin): Finish me
+export default function CheckoutCart({ configuredItems, restaurantId, onCheckout }: { configuredItems: ConfiguredItem[], restaurantId: number, onCheckout?: () => void }) {
+  const transactionMutation = api.pos.submitTransaction.useMutation();
 
-  alert(`Your total is $${formatCurrency(total)}`);
-}
-
-export default function CheckoutCart({ configuredItems }: { configuredItems: ConfiguredItem[] }) {
   function handleCheckout() {
-    const total = configuredItems.reduce<number>((itemAcc, confItem) => {
-      return itemAcc + getConfItemPrice(confItem);
-    }, 0);
+    const transaction = {
+      restaurantId,
+      tipAmount: 0,
+      items: configuredItems.map((item) => {
+        return {
+          id: item.item.id,
+          addons: item.addons.map((addon) => {
+            return {
+              id: addon.id,
+              quantity: addon.quantity,
+            }
+          })
+        }
+      })
+    }
 
-    checkOut(total);
+    transactionMutation.mutate(transaction);
+
+    if(onCheckout) {
+      onCheckout()
+    }
   }
 
   return (
