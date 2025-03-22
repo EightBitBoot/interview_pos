@@ -1,6 +1,7 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
+import CredentialsProvider from 'next-auth/providers/credentials';
 
 import { db } from "~/server/db";
 import {
@@ -9,6 +10,8 @@ import {
   users,
   verificationTokens,
 } from "~/server/db/schemas/authSchema";
+import { eq } from "drizzle-orm";
+import { employees, UserRole } from "../db/schemas/posSchema";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -19,7 +22,10 @@ import {
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
-      id: string;
+      id: number;
+      role: UserRole;
+      restaurantId: number;
+      name: string;
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
@@ -28,6 +34,10 @@ declare module "next-auth" {
   // interface User {
   //   // ...other properties
   //   // role: UserRole;
+  //   id: number,
+  //   role: UserRole,
+  //   restaurantId: number,
+  //   name: string,
   // }
 }
 
@@ -39,6 +49,38 @@ declare module "next-auth" {
 export const authConfig = {
   providers: [
     DiscordProvider,
+    CredentialsProvider({
+      name: "POS Credentials",
+
+      credentials: {
+        username: { label: "Username", type: "text", placeholder: "Username"},
+        password: { label: "Password", type: "password"}
+      },
+
+      authorize: async (creds) => {
+        const {username, password} = creds as {username: string, password: string};
+
+        const queryRes = await db.select().from(employees)
+          .where(eq(employees.username, username));
+
+        if(queryRes.length == 0) {
+          throw new Error(`Username ${username} not found!`)
+        }
+
+        let employee = queryRes[0]!;
+        if(password != employee.password) {
+          throw new Error("Invalid password!")
+        }
+
+        return {
+          id: employee.id,
+          name: employee.name,
+          restaurantId: employee.restaurantId,
+          role: employee.role,
+        }
+      },
+
+    })
     /**
      * ...add more providers here.
      *

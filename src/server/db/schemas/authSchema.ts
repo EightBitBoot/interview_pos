@@ -2,6 +2,7 @@ import { relations, sql } from "drizzle-orm";
 import {
   index,
   integer,
+  pgEnum,
   pgTableCreator,
   primaryKey,
   text,
@@ -9,6 +10,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
+import { restaurants } from "./posSchema";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -21,6 +23,7 @@ import { type AdapterAccount } from "next-auth/adapters";
  */
 export const createTable = pgTableCreator((name) => `interview_pos_${name}`);
 
+export const userRoleEnum = pgEnum("user_role_enum", ["staff", "manager", "owner"])
 export const users = createTable("user", {
   id: varchar("id", { length: 255 })
     .notNull()
@@ -33,10 +36,29 @@ export const users = createTable("user", {
     withTimezone: true,
   }).default(sql`CURRENT_TIMESTAMP`),
   image: varchar("image", { length: 255 }),
-});
 
-export const usersRelations = relations(users, ({ many }) => ({
+  restaurantId: integer().references(() => restaurants.id).notNull(),
+  username: varchar({length: 255}).notNull().unique(),
+  password: varchar({length: 255}).notNull(),
+
+  role: userRoleEnum().notNull().default("staff"),
+});
+export type EmployeeRole = "staff" | "manager" | "owner";
+export const usersRelations = relations(, ({ one, many }) => ({
+  restaurant: one(restaurants, {
+    fields: [users.restaurantId],
+    references: [restaurants.id],
+  }),
+  clockedInIntervals: many(clockedInIntervals)
+}));
+
+
+export const usersRelations = relations(users, ({ one, many }) => ({
   accounts: many(accounts),
+  restaurant: one(restaurants, {
+    fields: [users.restaurantId],
+    references: [restaurants.id],
+  })
 }));
 
 export const accounts = createTable(
@@ -109,4 +131,3 @@ export const verificationTokens = createTable(
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   })
 );
-
