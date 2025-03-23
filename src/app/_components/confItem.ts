@@ -20,17 +20,15 @@ export function getConfItemPrice(item: ConfiguredItem) {
     item.item.basePrice +
 
     item.addons.reduce<number>((addonAcc, addon) => {
-      return addonAcc + addon.quantity + addon.price;
+      return addonAcc + (addon.price * addon.quantity);
     }, 0)
   );
 }
 
 export function getTotalFromConfItems(configuredItems: ConfiguredItem[]) {
   return configuredItems.reduce((acc, item) => {
-    return acc + item.item.basePrice + item.addons.reduce((acc, addon) => {
-      return acc + addon.price;
-    }, 0)
-  }, 0)
+      return acc + getConfItemPrice(item);
+  }, 0);
 }
 
 export function itemToConfItem(item: ItemWithAddons): ConfiguredItem {

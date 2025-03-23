@@ -45,9 +45,15 @@ export default function AdminMenusList({ restaurant }: { restaurant: RestaurantW
       }
       </div>
 
+      {/*
+        TODO(Adin): Figure out how to set the App property
+                    on ReactModal instead of just opting
+                    out
+      */}
       <Modal
         isOpen={currentMenu != null}
         onRequestClose={() => setCurrentMenu(null)}
+        ariaHideApp={false}
       >
         <AdminMenuEditor menu={currentMenu ?? emptyMenu} />
       </Modal>

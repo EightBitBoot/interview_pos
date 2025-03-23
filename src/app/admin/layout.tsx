@@ -16,7 +16,7 @@ function NavBar() {
       flex-row
       justify-between
       h-50
-      position-sticky
+      sticky
       blue-50
       pl-10
       pr-10
@@ -43,10 +43,8 @@ function NavBar() {
 export default function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <>
-      <div className="flex flex-col">
-        <NavBar />
-        {children}
-      </div>
+      <NavBar />
+      {children}
     </>
   );
 }

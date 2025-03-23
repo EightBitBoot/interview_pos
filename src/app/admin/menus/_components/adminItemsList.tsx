@@ -39,14 +39,16 @@ export default function AdminItemsList({ menu }: { menu: MenuWithItemsAndAddons 
         }
       </div>
 
+      {/*
+        TODO(Adin): Figure out how to set the App property
+                    on ReactModal instead of just opting
+                    out
+      */}
       <Modal
         isOpen={currentItem != null}
         onRequestClose={() => setCurrentItem(null)}
+        ariaHideApp={false}
       >
-        {/*
-            Note(Adin): This is safe to force coalesce because the modal won't
-            open unless currentItem is set
-        */}
         <AdminEditItemForm item={currentItem ?? emptyItem} />
       </Modal>
     </>

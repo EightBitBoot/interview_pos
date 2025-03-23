@@ -1,0 +1,19 @@
+
+@import "tailwindcss";
+
+tbody td {
+  padding: 30px;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: ;
+  color: #fff;
+}
+
+th {
+  padding: 5px;
+}
+
+tbody tr:nth-child(odd) {
+  @apply bg-gray-100;
+}

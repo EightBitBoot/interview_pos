@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * NOTE(Adin): These are only global because importing a local css
+ *             file into 'admin/layout.tsx' throws an error saying
+ *             the 'fs' module can't be found
+ * */
+table {
+  border-spacing: 2px
+}
+
+tr {
+  border-bottom: solid 2px black;
+}
+
+tbody > tr:nth-child(even) {
+  @apply bg-gray-100;
+}

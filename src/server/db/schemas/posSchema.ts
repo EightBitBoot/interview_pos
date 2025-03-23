@@ -181,6 +181,10 @@ export const transactions = createTable(
   });
 export type Transaction = InferSelectModel<typeof transactions>;
 
+export const transactionRelations = relations(transactions, ({ many }) => ({
+  transactionItems: many(transactionItems)
+}))
+
 export const transactionItems = createTable(
   "transaction_item",
   {
@@ -190,6 +194,20 @@ export const transactionItems = createTable(
     itemId: integer("item_id").references(() => items.id).notNull(),
   }
 )
+
+export const transactionItemsRelations = relations(transactionItems, ({ one, many }) => ({
+  transaction: one(transactions, {
+    fields: [transactionItems.transactionId],
+    references: [transactions.id]
+  }),
+
+  item: one(items, {
+    fields: [transactionItems.itemId],
+    references: [items.id],
+  }),
+
+  transactionAddons: many(transactionAddons)
+}))
 
 export const transactionAddons = createTable(
   "transaction_addon",
@@ -201,3 +219,15 @@ export const transactionAddons = createTable(
     quantity: integer("quantity").notNull().default(1)
   }
 )
+
+export const transactionAddonsRelations = relations(transactionAddons, ({ one }) => ({
+  transactionItem: one(transactionItems, {
+    fields: [transactionAddons.transactionItemId],
+    references: [transactionItems.id]
+  }),
+
+  addon: one(addons, {
+    fields: [transactionAddons.addonId],
+    references: [addons.id]
+  })
+}))
