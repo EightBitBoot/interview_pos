@@ -1,4 +1,5 @@
 import { emptyItem, type Addon, type ItemWithAddons } from "~/server/db/schemas/posSchema";
+import { CheckoutItem } from "./posDisplay";
 
 // TODO(Adin): Convert these to transaction items
 export type CheckoutAddon = {
@@ -15,6 +16,8 @@ export const emptyConfiguredItem = {
   addons: [],
 }
 
+// (item_id, [(addonId, quantity)])
+
 export function getConfItemPrice(item: ConfiguredItem) {
   return (
     item.item.basePrice +
@@ -25,9 +28,9 @@ export function getConfItemPrice(item: ConfiguredItem) {
   );
 }
 
-export function getTotalFromConfItems(configuredItems: ConfiguredItem[]) {
+export function getTotalFromConfItems(configuredItems: CheckoutItem[]) {
   return configuredItems.reduce((acc, item) => {
-      return acc + getConfItemPrice(item);
+      return acc + getConfItemPrice(item.confItem) * item.quantity;
   }, 0);
 }
 
@@ -38,4 +41,10 @@ export function itemToConfItem(item: ItemWithAddons): ConfiguredItem {
       return {...addon, quantity: 0};
     })
   };
+}
+
+export function getConfItemId(item: ConfiguredItem) {
+  return item.item.id.toString() + ": [" + item.addons.toSorted((a, b) => a.id - b.id).reduce((acc, addon) => {
+    return acc + `(${addon.id}, ${addon.quantity}), `
+  }, "") + "]";
 }

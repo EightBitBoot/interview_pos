@@ -8,24 +8,37 @@ import ItemsList from './itemList';
 import CheckoutCart from './checkoutCart';
 
 import type { MenuWithItemsAndAddons } from "~/server/db/schemas/posSchema";
-import type { ConfiguredItem } from './confItem';
+import { getConfItemId, type ConfiguredItem } from './confItem';
 import { api } from '~/trpc/react';
+
+export type CheckoutItem = {
+  confItem: ConfiguredItem,
+  quantity: number,
+}
 
 export default function PosDisplay({ restaurantId, currentMenu }: { restaurantId: number, currentMenu: MenuWithItemsAndAddons }) {
   const transactionMutation = api.pos.submitTransaction.useMutation();
 
-  const [checkoutItems, setCheckoutItems] = useState<ConfiguredItem[]>([]);
+  const [checkoutItems, setCheckoutItems] = useState<Map<string, CheckoutItem>>(new Map());
   const [currentRestaurantId, setCurrentRestaurantId] = useState<number>(restaurantId);
 
   function handleAddItem(item: ConfiguredItem) {
-    const newCheckoutItems = checkoutItems.slice()
+    const newCheckoutItems = new Map(checkoutItems);
     const newItem = {
       item: item.item,
       addons: item.addons.filter((addon) => {
         return addon.quantity > 0;
       })
     }
-    newCheckoutItems.push(newItem);
+    const itemId = getConfItemId(newItem);
+    const oldItem = newCheckoutItems.get(itemId);
+    if (!!oldItem) {
+      newCheckoutItems.set(itemId, { confItem: oldItem.confItem, quantity: oldItem.quantity + 1 })
+    }
+    else {
+      newCheckoutItems.set(itemId, { confItem: newItem, quantity: 1 })
+    }
+
     setCheckoutItems(newCheckoutItems);
   }
 
@@ -33,8 +46,8 @@ export default function PosDisplay({ restaurantId, currentMenu }: { restaurantId
     const transaction = {
       restaurantId,
       tipAmount: 0,
-      items: checkoutItems.map((item) => {
-        return {
+      items: Array.from(checkoutItems.values()).flatMap(({ confItem: item, quantity }) => {
+        return new Array(quantity).fill({
           id: item.item.id,
           addons: item.addons.map((addon) => {
             return {
@@ -42,19 +55,21 @@ export default function PosDisplay({ restaurantId, currentMenu }: { restaurantId
               quantity: addon.quantity,
             }
           })
-        }
+        })
       })
     }
 
-    transactionMutation.mutate(transaction, { onSettled(data, error, variables, context) {
-      if(error) {
-        toast("Transaction Failed!")
-      }
-      else {
-        toast("Transaction Completed!")
-        setCheckoutItems([]);
-      }
-    },});
+    transactionMutation.mutate(transaction, {
+      onSettled(data, error, variables, context) {
+        if (error) {
+          toast("Transaction Failed!")
+        }
+        else {
+          toast("Transaction Completed!")
+          setCheckoutItems(new Map())
+        }
+      },
+    });
 
   }
 
@@ -65,7 +80,7 @@ export default function PosDisplay({ restaurantId, currentMenu }: { restaurantId
                    complete refresh (clearing the cart anyway).
   */ }
   if (restaurantId !== currentRestaurantId) {
-    setCheckoutItems([]);
+    setCheckoutItems(new Map());
     setCurrentRestaurantId(restaurantId);
   }
 
@@ -77,7 +92,7 @@ export default function PosDisplay({ restaurantId, currentMenu }: { restaurantId
         </div>
         <div className="flex flex-col bg-transparent h-[100%] border-l-2 border-l-black border-t-white border-t-2 border-box overflow-y-auto">
           <h1 className="text-2xl font-bold text-center">Checkout:</h1>
-          <CheckoutCart configuredItems={checkoutItems} onCheckout={handleCheckout} />
+          <CheckoutCart configuredItems={Array.from(checkoutItems.entries())} onCheckout={handleCheckout} />
         </div>
       </div>
       <ToastContainer />

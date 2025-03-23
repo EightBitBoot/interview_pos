@@ -7,18 +7,19 @@ import { getConfItemPrice, getTotalFromConfItems } from './confItem';
 import type { ConfiguredItem } from './confItem';
 
 import { formatCurrency } from '~/utils/uiUtils';
+import { CheckoutItem } from './posDisplay';
 
-function CheckoutCard({ confItem }: { confItem: ConfiguredItem }) {
+function CheckoutCard({ checkoutItem }: { checkoutItem: CheckoutItem }) {
   return (
     <Card>
       <div>
-        <span className="text-2xl font-semibold">{confItem.item.name}</span>: <span className="text-l">${formatCurrency(confItem.item.basePrice)}</span>
+        <span className="text-2xl font-semibold">{checkoutItem.quantity}x: {checkoutItem.confItem.item.name}</span>: <span className="text-l">${formatCurrency(checkoutItem.confItem.item.basePrice)}</span>
       </div>
 
       <div>
         <ul className="list-decimal pl-10">
           {
-            confItem.addons.map((addon) => {
+            checkoutItem.confItem.addons.map((addon) => {
               return (
                 <li key={addon.id}>
                   <span className="font-medium">{addon.name}</span> x{addon.quantity}: ${formatCurrency(addon.price * addon.quantity)}
@@ -31,7 +32,7 @@ function CheckoutCard({ confItem }: { confItem: ConfiguredItem }) {
 
       <div className="min-h-3" />
 
-      <div className="text-2xl font-semibold">${formatCurrency(getConfItemPrice(confItem))}</div>
+      <div className="text-2xl font-semibold">${formatCurrency(getConfItemPrice(checkoutItem.confItem))}</div>
     </Card>
   );
 }
@@ -52,7 +53,7 @@ function CheckoutRow({ onCheckout, total }: { onCheckout: () => void, total: num
 }
 
 type CheckoutCartProps = {
-  configuredItems: ConfiguredItem[],
+  configuredItems: [string, CheckoutItem][],
   onCheckout: () => void,
 }
 
@@ -61,10 +62,9 @@ export default function CheckoutCart({ configuredItems, onCheckout }: CheckoutCa
     <>
       <div className="flex flex-col gap-2 p-2">
         {
-          // TODO(Adin): Better CheckoutCard key
-          configuredItems.map((confItem) => {
+          configuredItems.map(([id, item]) => {
             return (
-              <CheckoutCard key={confItem.item.id} confItem={confItem} />
+              <CheckoutCard key={id} checkoutItem={item} />
             );
           })
         }
@@ -72,7 +72,7 @@ export default function CheckoutCart({ configuredItems, onCheckout }: CheckoutCa
 
       </div>
       <div className="p-2">
-        <CheckoutRow onCheckout={onCheckout} total={getTotalFromConfItems(configuredItems)} />
+        <CheckoutRow onCheckout={onCheckout} total={getTotalFromConfItems(configuredItems.map(([_, item]) => item))} />
       </div>
     </>
   )

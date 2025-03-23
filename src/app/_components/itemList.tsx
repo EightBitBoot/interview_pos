@@ -6,7 +6,9 @@ import { ItemWithAddons } from '~/server/db/schemas/posSchema';
 
 import Card from '~/app/components/card';
 
-import { emptyConfiguredItem, itemToConfItem, type CheckoutAddon, type ConfiguredItem } from "./confItem";
+import { emptyConfiguredItem, getConfItemId, itemToConfItem, } from "./confItem";
+import type {CheckoutAddon, ConfiguredItem } from './confItem'
+
 import { formatCurrency } from "~/utils/uiUtils";
 import { useState } from 'react';
 

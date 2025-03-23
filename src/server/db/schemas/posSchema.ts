@@ -5,6 +5,7 @@ import {
   text,
   timestamp,
   varchar,
+  decimal
 } from "drizzle-orm/pg-core";
 
 import { z } from "zod";
@@ -35,6 +36,7 @@ export const restaurants = createTable(
 
     name: varchar("name", { length: 1024 }).notNull(),
     currentMenuId: integer("current_menu_id").references((): AnyPgColumn => menus.id),
+    taxPercentage: decimal("tax_percentage").notNull().default("0.0")
   }
 );
 export type Restaurant = InferSelectModel<typeof restaurants>;
@@ -178,6 +180,7 @@ export const transactions = createTable(
     // employeeId: integer("employee_id").references(() => employees.id).notNull(),
     timestamp: timestamp("timestamp").notNull(),
     tipAmount: integer("tip_amount").notNull().default(0),
+    taxAmount: integer("tax_amount").notNull(),
   });
 export type Transaction = InferSelectModel<typeof transactions>;
 
