@@ -46,7 +46,7 @@ export const posRouter = createTRPCRouter({
         let transactionItemId = transItemRes[0]!.transactionItemId;
 
         item.addons.forEach(async (addon) => {
-          ctx.db.insert(transactionAddons)
+          await ctx.db.insert(transactionAddons)
             .values({transactionItemId, addonId: addon.id, quantity: addon.quantity})
         })
       })

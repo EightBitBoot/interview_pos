@@ -6,17 +6,9 @@ import Modal from 'react-modal'
 
 import Card from '~/app/components/card';
 
+import {emptyItem} from '~/server/db/schemas/posSchema'
 import type { MenuWithItemsAndAddons, ItemWithAddons } from '~/server/db/schemas/posSchema';
 import AdminEditItemForm from './editItemForm';
-
-const emptyItem: ItemWithAddons = {
-  id: -1,
-  menuId: -1,
-  name: "",
-  description: "",
-  basePrice: 0,
-  addons: [],
-}
 
 function AdminItemCard({ item, onClick }: { item: ItemWithAddons, onClick: (item: ItemWithAddons) => void }) {
   return (

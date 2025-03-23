@@ -107,6 +107,13 @@ export const menusRelations = relations(menus, ({ one, many }) => ({
 
   items: many(items)
 }));
+export const emptyMenu: MenuWithItemsAndAddons = {
+  id: -1,
+  restaurantId: -1,
+  name: "",
+  items: [],
+}
+
 
 export const items = createTable(
   "item",
@@ -124,6 +131,15 @@ export type ItemWithAddons = {
   addons: Addon[],
 } & Item;
 export const itemUpdateZodSchema = createUpdateSchema(items).extend({ id: z.number() });
+export const emptyItem: ItemWithAddons = {
+  id: -1,
+  menuId: -1,
+  name: "",
+  description: "",
+  basePrice: 0,
+  addons: [],
+}
+
 
 export const itemsRelations = relations(items, ({ one, many }) => ({
   menus: one(menus, {

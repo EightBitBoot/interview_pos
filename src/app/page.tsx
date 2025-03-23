@@ -23,17 +23,13 @@ export default function Home() {
 
   const [currentRestaurant, setCurrentRestaurant] = useState(0);
 
-  function onCheckout() {
-
-  }
-
   return (
-    <main className="flex h-screen flex-col items-center bg-gradient-to-b from-[#2e026d] to-[#15162c] overflow-y-hidden">
+    <main className="flex h-screen flex-col max-h-[100%] items-center overflow-y-clip">
       {
         isLoading ? <LoadingDisplay /> :
 
           <>
-            <label className="text-white">Current Restaurant</label>
+            <label>Current Restaurant</label>
             <select name="currentRestaurant" onChange={(e) => setCurrentRestaurant(e.target.selectedIndex)}>
               {
                 restaurants.map((restaurant) => {

@@ -3,10 +3,8 @@
 import { api } from '~/trpc/react';
 
 import Card from '~/app/components/card';
-import { getConfItemPrice } from './confItem';
+import { getConfItemPrice, getTotalFromConfItems } from './confItem';
 import type { ConfiguredItem } from './confItem';
-
-type CheckoutHandler = () => void;
 
 import { formatCurrency } from '~/utils/uiUtils';
 
@@ -38,58 +36,44 @@ function CheckoutCard({ confItem }: { confItem: ConfiguredItem }) {
   );
 }
 
-function CheckoutButton({ handleCheckout }: { handleCheckout: CheckoutHandler }) {
+function CheckoutRow({ onCheckout, total }: { onCheckout: () => void, total: number }) {
   return (
-    <button
-      className="p-50 border-2 border-black box-border bg-gray-50 rounded-xl drop-shadow-lg p-5"
-      onClick={() => handleCheckout()}
-    >
-      Check Out
-    </button>
+    <div className="flex flex-row gap-2">
+      <button
+        className="p-50 border-2 border-black box-border bg-gray-50 rounded-xl drop-shadow-lg p-5 w-[30%]"
+        onClick={onCheckout}
+      >
+        Check Out
+      </button>
+      <span className="text-xl font-semibold text-center pt-5 pb-5">Total: ${formatCurrency(total)}</span>
+    </div>
+
   );
 }
 
-export default function CheckoutCart({ configuredItems, restaurantId, onCheckout }: { configuredItems: ConfiguredItem[], restaurantId: number, onCheckout?: () => void }) {
-  const transactionMutation = api.pos.submitTransaction.useMutation();
+type CheckoutCartProps = {
+  configuredItems: ConfiguredItem[],
+  onCheckout: () => void,
+}
 
-  function handleCheckout() {
-    const transaction = {
-      restaurantId,
-      tipAmount: 0,
-      items: configuredItems.map((item) => {
-        return {
-          id: item.item.id,
-          addons: item.addons.map((addon) => {
-            return {
-              id: addon.id,
-              quantity: addon.quantity,
-            }
+export default function CheckoutCart({ configuredItems, onCheckout }: CheckoutCartProps) {
+  return (
+    <>
+      <div className="flex flex-col gap-2 p-2">
+        {
+          // TODO(Adin): Better CheckoutCard key
+          configuredItems.map((confItem) => {
+            return (
+              <CheckoutCard key={confItem.item.id} confItem={confItem} />
+            );
           })
         }
-      })
-    }
 
-    transactionMutation.mutate(transaction);
 
-    if(onCheckout) {
-      onCheckout()
-    }
-  }
-
-  return (
-    <div className="flex flex-col gap-2 p-2">
-      {
-        // TODO(Adin): Better CheckoutCard key
-        configuredItems.map((confItem) => {
-          return (
-            <CheckoutCard key={confItem.item.id} confItem={confItem} />
-          );
-        })
-      }
-
-      <div className="min-h-3" />
-
-      <CheckoutButton handleCheckout={handleCheckout} />
-    </div>
+      </div>
+      <div className="p-2">
+        <CheckoutRow onCheckout={onCheckout} total={getTotalFromConfItems(configuredItems)} />
+      </div>
+    </>
   )
 }
