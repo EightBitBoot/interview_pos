@@ -90,7 +90,7 @@ export default function ItemsList({ items, onAddItem }: ItemsListProps) {
       return
     }
 
-    let newCurrentItem = { ...currentItem };
+    const newCurrentItem = { ...currentItem };
     const newQuantity = newCurrentItem.addons[index]!.quantity + change;
     newCurrentItem.addons[index]!.quantity = Math.max(newQuantity, 0)
     setCurrentItem(newCurrentItem);
@@ -106,7 +106,7 @@ export default function ItemsList({ items, onAddItem }: ItemsListProps) {
   }
 
   // TODO(Adin): Hacky work around: fix me
-  let item = currentItem ?? emptyConfiguredItem;
+  const item = currentItem ?? emptyConfiguredItem;
 
   return (
     <>

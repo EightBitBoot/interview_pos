@@ -41,61 +41,63 @@ export default function PosDisplay({ restaurantId, currentMenu }: { restaurantId
 
     setCheckoutItems(newCheckoutItems);
   }
+  {
 
-  function handleCheckout() {
-    const transaction = {
-      restaurantId,
-      tipAmount: 0,
-      items: Array.from(checkoutItems.values()).flatMap(({ confItem: item, quantity }) => {
-        return new Array(quantity).fill({
-          id: item.item.id,
-          addons: item.addons.map((addon) => {
-            return {
-              id: addon.id,
-              quantity: addon.quantity,
-            }
+    function handleCheckout() {
+      const transaction = {
+        restaurantId,
+        tipAmount: 0,
+        items: Array.from(checkoutItems.values()).flatMap(({ confItem: item, quantity }) => {
+          return new Array<{ id: number, addons: { id: number, quantity: number, }[] }>(quantity).fill({
+            id: item.item.id,
+            addons: item.addons.map((addon) => {
+              return {
+                id: addon.id,
+                quantity: addon.quantity,
+              }
+            })
           })
         })
-      })
+      }
+
+      transactionMutation.mutate(transaction, {
+        onSettled(data, error, variables, context) {
+          if (error) {
+            toast("Transaction Failed!")
+          }
+          else {
+            toast("Transaction Completed!")
+            setCheckoutItems(new Map())
+          }
+        },
+      });
+
     }
 
-    transactionMutation.mutate(transaction, {
-      onSettled(data, error, variables, context) {
-        if (error) {
-          toast("Transaction Failed!")
-        }
-        else {
-          toast("Transaction Completed!")
-          setCheckoutItems(new Map())
-        }
-      },
-    });
-
-  }
-
-  { /*
+    { /*
        NOTE(Adin): This is a hacky fix for the demo demo so that the cart
                    clears when the restaurant changes. In a real system,
                    the restaurant will never change without a logout and
                    complete refresh (clearing the cart anyway).
   */ }
-  if (restaurantId !== currentRestaurantId) {
-    setCheckoutItems(new Map());
-    setCurrentRestaurantId(restaurantId);
-  }
+    if (restaurantId !== currentRestaurantId) {
+      setCheckoutItems(new Map());
+      setCurrentRestaurantId(restaurantId);
+    }
 
-  return (
-    <>
-      <div className="grid w-screen grid-cols-[3fr,1fr] border-2 border-black border-box rounded-xl">
-        <div className="p-4px h-screen overflow-y-scroll">
-          <ItemsList items={[...currentMenu.items]} onAddItem={handleAddItem} />
+    return (
+      <>
+        <div className="grid w-screen grid-cols-[3fr,1fr] border-2 border-black border-box rounded-xl">
+          <div className="p-4px h-screen overflow-y-scroll">
+            <ItemsList items={[...currentMenu.items]} onAddItem={handleAddItem} />
+          </div>
+          <div className="flex flex-col bg-transparent h-[100%] border-l-2 border-l-black border-t-white border-t-2 border-box overflow-y-auto">
+            <h1 className="text-2xl font-bold text-center">Checkout:</h1>
+            <CheckoutCart configuredItems={Array.from(checkoutItems.entries())} onCheckout={handleCheckout} />
+          </div>
         </div>
-        <div className="flex flex-col bg-transparent h-[100%] border-l-2 border-l-black border-t-white border-t-2 border-box overflow-y-auto">
-          <h1 className="text-2xl font-bold text-center">Checkout:</h1>
-          <CheckoutCart configuredItems={Array.from(checkoutItems.entries())} onCheckout={handleCheckout} />
-        </div>
-      </div>
-      <ToastContainer />
-    </>
-  );
+        <ToastContainer />
+      </>
+    );
+  }
 }

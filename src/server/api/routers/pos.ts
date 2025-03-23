@@ -27,7 +27,7 @@ export const posRouter = createTRPCRouter({
   submitTransaction: publicProcedure
     .input(apiTransactionSchema)
     .mutation(async ({ input, ctx }) => {
-      let timestamp = sql`now()`;
+      const timestamp = sql`now()`;
 
       const taxRate = await ctx.db.query.restaurants.findFirst({
         where: ((restaurants, { eq }) => eq(restaurants.id, input.restaurantId)),
@@ -38,7 +38,7 @@ export const posRouter = createTRPCRouter({
       })
 
       await ctx.db.transaction(async (db) => {
-        let transInsRes = await db.insert(transactions)
+        const transInsRes = await db.insert(transactions)
           .values({
             restaurantId: input.restaurantId,
             timestamp: timestamp,
@@ -47,21 +47,20 @@ export const posRouter = createTRPCRouter({
           })
           .returning({ transactionId: transactions.id });
 
-        let transactionId = transInsRes[0]!.transactionId
+        const transactionId = transInsRes[0]!.transactionId
 
-        input.items.forEach(async (item) => {
-          let transItemRes = await db.insert(transactionItems)
+        for(const item of input.items) {
+          const transItemRes = await db.insert(transactionItems)
             .values({ transactionId, itemId: item.id })
             .returning({ transactionItemId: transactionItems.id })
 
-          let transactionItemId = transItemRes[0]!.transactionItemId;
+          const transactionItemId = transItemRes[0]!.transactionItemId;
 
-          item.addons.forEach(async (addon) => {
+          for(const addon of item.addons) {
             await db.insert(transactionAddons)
               .values({ transactionItemId, addonId: addon.id, quantity: addon.quantity })
-          })
-        })
-
+          }
+        }
 
         const transaction = await db.query.transactions.findFirst({
           where: eq(transactions.id, transactionId),

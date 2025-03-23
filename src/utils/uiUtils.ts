@@ -6,8 +6,10 @@ export function formatCurrency(pennies: number) {
 
 export function getTransactionTotal(transactionItems: TransactionWithItems["transactionItems"]) {
   return transactionItems.reduce((acc, transactionItem) => {
-    return acc + transactionItem.item!.basePrice + transactionItem.transactionAddons.reduce((acc, transactionAddon) => {
-      return acc + (transactionAddon.addon.price * transactionAddon.quantity);
-    }, 0)
-  }, 0)
+    return acc +
+      transactionItem.item.basePrice +
+      transactionItem.transactionAddons.reduce((acc, transactionAddon) => {
+        return acc + (transactionAddon.addon.price * transactionAddon.quantity);
+      }, 0) // transactionAddons.reduce(...)
+  }, 0) // transactionItems.reduce(...)
 }

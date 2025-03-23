@@ -38,7 +38,7 @@ export default async function TransactionsPage() {
       ...transaction,
 
       subTotal: transactionItems.reduce((acc, transactionItem) => {
-        return acc + transactionItem.item!.basePrice + transactionItem.transactionAddons.reduce((acc, transactionAddon) => {
+        return acc + transactionItem.item.basePrice + transactionItem.transactionAddons.reduce((acc, transactionAddon) => {
           return acc + (transactionAddon.addon.price * transactionAddon.quantity);
         }, 0)
       }, 0),
